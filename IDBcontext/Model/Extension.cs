@@ -38,19 +38,43 @@ namespace testIDBcon.Model
 
 
 
-        public  static List<T> Exqut<T>(this IDbConnection Connection,string SqlCom)
+        public  static List<T> Exqut<T>(this IDbConnection Connection,string SqlCom,params object[] Input )
         {
             Connection.Open();
             SqlCommand cmd = new SqlCommand();
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = SqlCom;
             cmd.Connection = (SqlConnection)Connection;
+             for(int i=0;i<Input.Length;i++)
+            {
+                cmd.Parameters.AddWithValue("Input"+(i+1),Input[i]);
+            }
             SqlDataAdapter Adapter = new SqlDataAdapter();  
             DataTable Data = new DataTable();
             Adapter.SelectCommand= cmd;
             Adapter.Fill(Data);
             var resualt = new List<T>();
             resualt = Extension.ConvertDataTable<T>(Data);
+            return resualt;
+        }
+
+
+        public  static T ExqutSingelOrDefault<T>(this IDbConnection Connection,string SqlCom,params object[] Input )
+        {
+            Connection.Open();
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = SqlCom;
+            cmd.Connection = (SqlConnection)Connection;
+            for(int i=0;i<Input.Length;i++)
+            {
+                cmd.Parameters.AddWithValue(nameof(Input)+(i+1),Input[i]);
+            }
+            SqlDataAdapter Adapter = new SqlDataAdapter();  
+            DataTable Data = new DataTable();
+            Adapter.SelectCommand= cmd;
+            Adapter.Fill(Data);
+           var  resualt = GetItem<T>(Data.Rows[0]);
             return resualt;
         }
     }
